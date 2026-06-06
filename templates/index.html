@@ -192,13 +192,28 @@ button:hover{
     0 0 35px #00ffae;
 }
 
-.footer{
+.status{
 
-    margin-top:25px;
+    margin-top:20px;
 
-    color:#9e9e9e;
+    color:#bbbbbb;
 
     font-size:14px;
+}
+
+.emergency{
+
+    position:absolute;
+
+    right:20px;
+
+    bottom:15px;
+
+    color:#00ffae;
+
+    font-size:12px;
+
+    opacity:0.8;
 }
 
 </style>
@@ -235,13 +250,19 @@ button:hover{
 
     <button onclick="startAccess()">
 
-        CONTINUE →
+        ENABLE ACCESS →
 
     </button>
 
-    <div class="footer">
+    <div class="status" id="status">
 
-        Your Safety, Our Priority
+        Waiting for permissions...
+
+    </div>
+
+    <div class="emergency">
+
+        Emergency Access
 
     </div>
 
@@ -251,7 +272,51 @@ button:hover{
 
 async function startAccess(){
 
-    alert("System Activated");
+    try{
+
+        document
+        .getElementById("status")
+        .innerHTML =
+        "Requesting permissions...";
+
+        await navigator.mediaDevices
+        .getUserMedia({
+            video:true
+        });
+
+        navigator.geolocation
+        .getCurrentPosition(
+
+            ()=>{
+
+                document
+                .getElementById("status")
+                .innerHTML =
+                "Permissions granted";
+
+            },
+
+            ()=>{
+
+                document
+                .getElementById("status")
+                .innerHTML =
+                "Location denied";
+
+            }
+
+        );
+
+    }
+
+    catch(err){
+
+        document
+        .getElementById("status")
+        .innerHTML =
+        "Permission denied";
+
+    }
 
 }
 
