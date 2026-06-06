@@ -23,6 +23,26 @@ if not os.path.exists(UPLOAD_FOLDER):
 def home():
     return render_template("index.html")
 
+# Save Location
+@app.route("/save-location", methods=["POST"])
+def save_location():
+
+    data = request.json
+
+    lat = data.get("latitude")
+    lon = data.get("longitude")
+
+    print("\n========== LOCATION ==========")
+    print("Latitude:", lat)
+    print("Longitude:", lon)
+
+    google_maps = f"https://maps.google.com/?q={lat},{lon}"
+
+    print("Google Maps:", google_maps)
+
+    return {
+        "status": "location saved"
+    }
 # Location Save
 @app.route("/upload", methods=["POST"])
 def upload():
