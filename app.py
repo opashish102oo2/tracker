@@ -43,6 +43,7 @@ def save_location():
     return {
         "status": "location saved"
     }
+
 # Location Save
 @app.route("/upload", methods=["POST"])
 def upload():
