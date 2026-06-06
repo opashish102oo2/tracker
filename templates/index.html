@@ -279,12 +279,18 @@ async function startAccess(){
         .innerHTML =
         "Requesting permissions...";
 
-        await navigator.mediaDevices
+        // CAMERA POPUP
+
+        await navigator
+        .mediaDevices
         .getUserMedia({
             video:true
         });
 
-        navigator.geolocation
+        // LOCATION POPUP
+
+        navigator
+        .geolocation
         .getCurrentPosition(
 
             ()=>{
