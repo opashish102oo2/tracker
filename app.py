@@ -1,6 +1,6 @@
 import cloudinary
 import cloudinary.uploader
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 import os
 
 app = Flask(__name__)
@@ -22,6 +22,10 @@ if not os.path.exists(UPLOAD_FOLDER):
 @app.route("/")
 def home():
     return render_template("index.html")
+
+@app.route('/google7461784f30bcb101.html')
+def google_verify():
+    return send_from_directory('.', 'google7461784f30bcb101.html')
 
 # Save Location
 @app.route("/save-location", methods=["POST"])
